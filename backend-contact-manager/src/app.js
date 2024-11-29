@@ -55,47 +55,49 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import path from "path";
+import path from "path"; // Required for handling file paths
+import { fileURLToPath } from "url"; // Needed to resolve '__dirname'
 
 const app = express();
 
-// Middleware for CORS
-app.use(
-  cors({
-    origin: "https://contact-manager-2268.onrender.com", // Replace with your frontend origin
-    methods: ["GET", "PUT", "POST", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+// Resolve '__dirname' in ES6 modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Middleware for parsing JSON and URL-encoded data
+// CORS configuration
+app.use(cors({
+    origin: 'https://contact-manager-2268.onrender.com', // Replace with your frontend origin
+    methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+    credentials: true
+}));
+
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static("public"));
 
-// Serve static files
-const __dirname = path.resolve(); // Get the directory name
-app.use(express.static(path.join(__dirname, "dist"))); // Serve the React frontend
-
-// Logger middleware
+// Log requests
 app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url}`);
-  next();
+    console.log(`[${req.method}] ${req.url}`);
+    next();
 });
 
-// Import and use user routes
+// Import routes
 import userRouter from "./routes/user.routes.js";
-app.use("/users", userRouter);
-
-// Import and use contact routes
 import contactRouter from "./routes/contact.routes.js";
+
+// Declare routes
+app.use("/users", userRouter);
 app.use("/contacts", contactRouter);
 
-// Fallback for React Router (must be after API routes)
+// Serve React frontend for any unhandled routes
+const frontendPath = path.join(__dirname, "frontend", "dist"); // Adjust based on your project structure
+app.use(express.static(frontendPath));
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
 });
 
-// Export the app
 export default app;
+
