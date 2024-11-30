@@ -52,50 +52,96 @@
 
 // export default app
 
+// import express from "express";
+// import cors from "cors";
+// import cookieParser from "cookie-parser";
+// import path from "path";
+
+// const app = express();
+
+// // Middleware for CORS
+// app.use(
+//   cors({
+//     origin: "https://contact-manager-2268.onrender.com", // Replace with your frontend origin
+//     methods: ["GET", "PUT", "POST", "PATCH", "DELETE"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//     credentials: true,
+//   })
+// );
+
+// // Middleware for parsing JSON and URL-encoded data
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(cookieParser());
+
+// // Serve static files
+// const __dirname = path.resolve(); // Get the directory name
+// app.use(express.static(path.join(__dirname, "dist"))); // Serve the React frontend
+
+// // Logger middleware
+// app.use((req, res, next) => {
+//   console.log(`[${req.method}] ${req.url}`);
+//   next();
+// });
+
+// // Import and use user routes
+// import userRouter from "./routes/user.routes.js";
+// app.use("/users", userRouter);
+
+// // Import and use contact routes
+// import contactRouter from "./routes/contact.routes.js";
+// app.use("/contacts", contactRouter);
+
+// // Fallback for React Router (must be after API routes)
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "dist", "index.html"));
+// });
+
+// // Export the app
+// export default app;
+
+
+
+
+
+
+
+
+
+import path from "path";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import path from "path";
 
 const app = express();
 
-// Middleware for CORS
-app.use(
-  cors({
-    origin: "https://contact-manager-2268.onrender.com", // Replace with your frontend origin
-    methods: ["GET", "PUT", "POST", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+// Middleware
+app.use(cors({
+    origin: 'https://contact-manager-2268.onrender.com', // Replace with your frontend URL
+    methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
 
-// Middleware for parsing JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Serve static files
-const __dirname = path.resolve(); // Get the directory name
-app.use(express.static(path.join(__dirname, "dist"))); // Serve the React frontend
-
-// Logger middleware
-app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url}`);
-  next();
-});
-
-// Import and use user routes
+// API routes
 import userRouter from "./routes/user.routes.js";
-app.use("/users", userRouter);
-
-// Import and use contact routes
 import contactRouter from "./routes/contact.routes.js";
+
+app.use("/users", userRouter);
 app.use("/contacts", contactRouter);
 
-// Fallback for React Router (must be after API routes)
+// Serve React frontend
+const __dirname = path.resolve(); // Get the directory name
+app.use(express.static(path.join(__dirname, "dist"))); // Serve the built React files
+
+// Handle React routing, return index.html for unknown routes
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+    res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-// Export the app
 export default app;
+
